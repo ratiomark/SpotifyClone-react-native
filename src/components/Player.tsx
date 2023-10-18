@@ -1,9 +1,79 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { Text, StyleSheet, Image, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayerContext } from '../providers/PlayerProvider';
+import React, { useEffect, useState } from 'react';
+import { AVPlaybackStatus, Audio } from 'expo-av';
+import { Sound } from 'expo-av/build/Audio';
 
 const Player = () => {
+	const [sound, setSound] = useState<Sound>()
+	const [isLoading, setIsLoading] = useState(false)
+	const [isPlaying, setIsPlaying] = useState(false)
 	const { track } = usePlayerContext()
+
+
+	useEffect(() => {
+		if (track) {
+			playTrack()
+		}
+	}, [track])
+
+	useEffect(() => {
+		return sound
+			? () => {
+				sound.unloadAsync()
+			}
+			: undefined
+	}, [sound])
+
+	const playTrack = async () => {
+		if (!track?.preview_url) return
+
+		// Unload the previous track from memory
+		if (sound) {
+
+			await sound.unloadAsync()
+		}
+
+		const { sound: newSound } = await Audio.Sound.createAsync({
+			uri: track.preview_url
+		})
+		newSound.setOnPlaybackStatusUpdate(onPlayBackStatusUpdate)
+		setSound(newSound)
+		await newSound.playAsync()
+	}
+
+	const onPlayBackStatusUpdate = (status: AVPlaybackStatus) => {
+		// { "androidImplementation": "SimpleExoPlayer", "audioPan": 0, "didJustFinish": false, "durationMillis": 29753, "isBuffering": false, "isLoaded": true, "isLooping": false, "isMuted": false, "isPlaying": false, "playableDurationMillis": 29753, "positionMillis": 1516, "progressUpdateIntervalMillis": 500, "rate": 1, "shouldCorrectPitch": false, "shouldPlay": false, "uri": "/mp3-preview/f197464a3ec04a490ef25feacf7d61205ccb9c84", "volume": 1 }
+		console.log(status)
+		if (!status.isLoaded) {
+			setIsLoading(true)
+			return
+		}
+		setIsLoading(false)
+		// if (status.isPlaying) {
+		setIsPlaying(status.isPlaying)
+		// } else {
+		// setIsPlaying(false)
+		// }
+
+	}
+
+
+	const onPlayPause = async () => {
+		if (!sound) return
+
+		// if (sound._()) {
+		if (isPlaying) {
+			await sound.pauseAsync()
+
+		} else {
+			await sound.playAsync()
+		}
+	}
+
+
+
 	if (!track) {
 		return null;
 	}
@@ -27,15 +97,21 @@ const Player = () => {
 					style={{ marginHorizontal: 10 }}
 				/>
 				<Ionicons
+					onPress={onPlayPause}
 					disabled={!track?.preview_url}
-					name={'play'}
+					// name={'play'}
+					name={isPlaying ? 'pause' : 'play'}
+					// name={'warning'}
 					size={22}
 					color={track?.preview_url ? 'white' : 'gray'}
+				// onPress={}
 				/>
 			</View>
 		</View>
 	);
 };
+
+export default Player;
 
 const styles = StyleSheet.create({
 	container: {
@@ -68,5 +144,3 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 	},
 });
-
-export default Player;
