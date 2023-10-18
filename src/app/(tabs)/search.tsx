@@ -26,18 +26,23 @@ export default function SearchScreen() {
 				<Text onPress={() => {
 					setSearch('')
 					// Keyboard.dismiss()
-				}
-				} style={{ color: 'white' }} >Cancel</Text>
+				}}
+					style={{ color: 'white' }}
+				>
+					Cancel
+				</Text>
 			</View>
 
-
-			{/* <FlatList data={tracks}
+			<FlatList
+				data={tracks}
 				renderItem={({ item }) => (
 					<View>
 						<TrackListItem track={item} />
 					</View>
 				)}
-			/> */}
+			/>
+
+
 			{/* </View> */}
 		</SafeAreaView>
 	);
