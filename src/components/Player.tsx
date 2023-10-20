@@ -38,6 +38,7 @@ const Player = () => {
 		const { sound: newSound } = await Audio.Sound.createAsync({
 			uri: track.preview_url
 		})
+		// update the sound state 
 		newSound.setOnPlaybackStatusUpdate(onPlayBackStatusUpdate)
 		setSound(newSound)
 		await newSound.playAsync()
@@ -45,7 +46,7 @@ const Player = () => {
 
 	const onPlayBackStatusUpdate = (status: AVPlaybackStatus) => {
 		// { "androidImplementation": "SimpleExoPlayer", "audioPan": 0, "didJustFinish": false, "durationMillis": 29753, "isBuffering": false, "isLoaded": true, "isLooping": false, "isMuted": false, "isPlaying": false, "playableDurationMillis": 29753, "positionMillis": 1516, "progressUpdateIntervalMillis": 500, "rate": 1, "shouldCorrectPitch": false, "shouldPlay": false, "uri": "/mp3-preview/f197464a3ec04a490ef25feacf7d61205ccb9c84", "volume": 1 }
-		console.log(status)
+
 		if (!status.isLoaded) {
 			setIsLoading(true)
 			return
@@ -66,7 +67,7 @@ const Player = () => {
 		// if (sound._()) {
 		if (isPlaying) {
 			await sound.pauseAsync()
-
+ 
 		} else {
 			await sound.playAsync()
 		}
