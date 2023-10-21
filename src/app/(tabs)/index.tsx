@@ -37,7 +37,9 @@ export default function HomeScreen() {
 	const tracks = data?.recommendations?.tracks ?? []
 
 	return (
-		<View style={styles.container}>
+		<View
+		// style={styles.container}
+		>
 			<FlatList data={tracks}
 				renderItem={({ item }) => (
 					<View>

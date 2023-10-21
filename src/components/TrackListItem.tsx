@@ -13,7 +13,7 @@ const TrackListItem = ({ track }: TrackListItemProps) => {
 		<Pressable onPress={() => setTrack(track)} style={styles.container}  >
 			<Image
 				style={styles.image}
-				source={{ uri: track.album.images[0]?.url }}
+				source={{ uri: track?.album?.images[0]?.url }}
 			/>
 			<View>
 				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.title} >{track.name}</Text>

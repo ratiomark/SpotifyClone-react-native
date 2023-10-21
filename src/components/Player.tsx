@@ -4,17 +4,65 @@ import { usePlayerContext } from '../providers/PlayerProvider';
 import React, { useEffect, useState } from 'react';
 import { AVPlaybackStatus, Audio } from 'expo-av';
 import { Sound } from 'expo-av/build/Audio';
+import { gql, useMutation, useQuery } from '@apollo/client';
+
+const insertFavoriteMutation = gql`
+	mutation MyMutation($userId:String!, $trackId: String!) {
+		insertFavorites(userid: $userId, trackid: $trackId) {
+			id
+			trackid
+			userid
+		}
+}
+`
+const deleteFavoriteMutation = gql`
+	mutation MyMutation($userId:String!, $trackId: String!) {
+  deleteFavorites(userid: $userId, trackid: $trackId) {
+		id
+		}
+	}
+`
+
+const isFavorite = gql`
+	query MyQuery($userId:String!, $trackId: String!) {
+  favoritesByTrackidAndUserid(userid: $userId, trackid: $trackId) {
+    id
+    trackid
+    userid
+  }
+}
+`
 
 const Player = () => {
 	const [sound, setSound] = useState<Sound>()
 	const [isLoading, setIsLoading] = useState(false)
 	const [isPlaying, setIsPlaying] = useState(false)
 	const { track } = usePlayerContext()
+	const [insertFavorite] = useMutation(insertFavoriteMutation)
+	const [deleteFavorite] = useMutation(deleteFavoriteMutation)
+	const { data, refetch } = useQuery(isFavorite, { variables: { userId: 'mark', trackId: track?.id ?? '' } })
+	// const [isLiked, setIsLiked] = useState(false)
+	const isLiked = data?.favoritesByTrackidAndUserid?.length > 0
 
+	const onLike = async () => {
+		if (!track) return
+		if (isLiked) {
+			deleteFavorite({ variables: { userId: 'mark', trackId: track.id } })
+		} else {
+			await insertFavorite({ variables: { userId: 'mark', trackId: track.id } })
+		}
+		refetch()
+		// console.log(data)
+	}
+
+	// useEffect(() => {
+	// 	setIsLiked(data?.favoritesByTrackidAndUserid?.length > 0)
+	// }, [data])
 
 	useEffect(() => {
 		if (track) {
 			playTrack()
+			// refetch()
 		}
 	}, [track])
 
@@ -67,7 +115,7 @@ const Player = () => {
 		// if (sound._()) {
 		if (isPlaying) {
 			await sound.pauseAsync()
- 
+
 		} else {
 			await sound.playAsync()
 		}
@@ -92,7 +140,8 @@ const Player = () => {
 				</View>
 
 				<Ionicons
-					name={'heart-outline'}
+					onPress={onLike}
+					name={isLiked ? 'heart' : 'heart-outline'}
 					size={20}
 					color={'white'}
 					style={{ marginHorizontal: 10 }}

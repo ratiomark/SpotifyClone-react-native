@@ -98,7 +98,6 @@ type SearchTracks {
 type Query {
   _search(q: String, access_token: String!): SearchResult
     @rest(
-      # endpoint: "https://api.spotify.com/v1/search?type=track"
       endpoint: "https://api.spotify.com/v1/search?type=album%2Cartist%2Cplaylist%2Cshow%2Cepisode%2Ctrack%2Caudiobook"
       headers: [{ name: "authorization", value: "Bearer $access_token" }]
     )
